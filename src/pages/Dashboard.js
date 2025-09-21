@@ -7,7 +7,7 @@ import messagesIcon from "../assets/messages.png";
 import tasksIcon from "../assets/tasks.png";
 import membersIcon from "../assets/members.png";
 import settingsIcon from "../assets/settings.png";
-import sidebarLogo from "../assets/logo.png"; 
+import sidebarLogo from "../assets/logo.png";
 import arrow from "../assets/arrow.png";
 import square from "../assets/square.png";
 import dots3 from "../assets/dots3.png";
@@ -23,11 +23,11 @@ import calendarIcon from "../assets/calendarIcon.svg";
 import shareIcon from "../assets/shareIcon.svg";
 import row2 from "../assets/row2.png";
 
-import blueSquare from "../assets/blueSquare.png"; 
-import itemProfiles from "../assets/itemProfiles.png"; // used in cards
+import blueSquare from "../assets/blueSquare.png";
+import itemProfiles from "../assets/itemProfiles.png";
 import commentsIcon from "../assets/commentsIcon.png";
 import filesIcon from "../assets/filesIcon.png";
-import dotsIcon from "../assets/dots3.png"; // three dots icon used in cards
+import dotsIcon from "../assets/dots3.png";
 
 // helper: generate simple unique id
 const genId = () =>
@@ -36,14 +36,13 @@ const genId = () =>
 export default function Layout() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
-  // UI constants 
+  // UI constants
   const COLORS = {
     todo: "#5030e5",
     inprogress: "#ffa500",
     done: "#8bc48a",
   };
 
-  // --- Load saved tasks from localStorage or default sample tasks ---
   const [columns, setColumns] = useState(() => {
     try {
       const saved = localStorage.getItem("creativeUpaayTasks_v1");
@@ -51,8 +50,6 @@ export default function Layout() {
     } catch (e) {
       /* ignore */
     }
-
-    // default starter data 
     return {
       todo: [
         {
@@ -145,7 +142,6 @@ export default function Layout() {
     };
   });
 
-  // Persist columns to localStorage whenever they change
   useEffect(() => {
     try {
       localStorage.setItem("creativeUpaayTasks_v1", JSON.stringify(columns));
@@ -154,10 +150,7 @@ export default function Layout() {
     }
   }, [columns]);
 
-  // Filter state: 'All' | 'Low' | 'High' | 'Completed'
   const [filterPriority, setFilterPriority] = useState("All");
-
-  // Add-task form control: which column's add form is open (or null)
   const [addFormFor, setAddFormFor] = useState(null);
   const [newTaskData, setNewTaskData] = useState({
     title: "",
@@ -166,7 +159,6 @@ export default function Layout() {
     priority: "Low",
   });
 
-  // --- Drag & Drop handlers ---
   const onDragEnd = (result) => {
     const { source, destination } = result;
     if (!destination) return;
@@ -174,7 +166,6 @@ export default function Layout() {
     const srcId = source.droppableId;
     const destId = destination.droppableId;
 
-    // re-order within same column
     if (srcId === destId) {
       const items = Array.from(columns[srcId]);
       const [moved] = items.splice(source.index, 1);
@@ -183,7 +174,6 @@ export default function Layout() {
       return;
     }
 
-    // moving to different column
     const sourceItems = Array.from(columns[srcId]);
     const [moved] = sourceItems.splice(source.index, 1);
     const destItems = Array.from(columns[destId]);
@@ -196,7 +186,6 @@ export default function Layout() {
     }));
   };
 
-  // Add Task submit handler
   const handleAddTask = (columnKey) => {
     if (!newTaskData.title.trim()) return;
 
@@ -215,18 +204,15 @@ export default function Layout() {
       [columnKey]: [task, ...prev[columnKey]],
     }));
 
-    // reset form & close
     setNewTaskData({ title: "", desc1: "", desc2: "", priority: "Low" });
     setAddFormFor(null);
   };
 
-  // Utility: filtered tasks for rendering
   const getFiltered = (list) => {
     if (!filterPriority || filterPriority === "All") return list;
     return list.filter((t) => t.priority === filterPriority);
   };
 
-  // small helper to display status tag style
   const statusClass = (priority) => {
     if (priority === "Low")
       return "px-2 py-1 text-xs font-semibold rounded-full bg-[#f9eee3] text-[#e3b698]";
@@ -237,7 +223,6 @@ export default function Layout() {
     return "px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-700";
   };
 
-  // column metadata to iterate
   const columnMeta = [
     { key: "todo", title: "To Do", color: COLORS.todo },
     { key: "inprogress", title: "On Progress", color: COLORS.inprogress },
@@ -245,12 +230,12 @@ export default function Layout() {
   ];
 
   return (
-    <div className="flex h-screen relative">
-      {/* ---------- Sidebar (kept my existing structure) ---------- */}
+    <div className="flex h-screen relative overflow-hidden">
+      {/* ---------- Sidebar ---------- */}
       <div
-        className={`bg-white h-screen transition-all duration-300 overflow-hidden border-r ${
-          isSidebarOpen ? "w-64" : "w-0"
-        }`}
+        className={`bg-white h-screen transition-all duration-300 overflow-hidden border-r fixed md:static z-20 ${
+          isSidebarOpen ? "w-64 md:w-56 sm:w-48" : "w-0"
+        } md:block`}
       >
         {isSidebarOpen && (
           <div className="p-4 relative h-full flex flex-col">
@@ -263,7 +248,7 @@ export default function Layout() {
 
             <div className="flex items-center gap-3 mb-6">
               <img src={sidebarLogo} alt="Logo" className="w-6 h-6" />
-              <span className="text-xl font-bold">Project M.</span>
+              <span className="text-xl font-bold sm:text-lg">Project M.</span>
             </div>
 
             <nav className="flex flex-col">
@@ -279,7 +264,7 @@ export default function Layout() {
                   className="flex items-center gap-3 p-2 hover:bg-[#f1eefd] rounded cursor-pointer"
                 >
                   <img src={ic} alt={`menu-${i}`} className="w-4 h-4" />
-                  <span className="font-medium text-gray-500">
+                  <span className="font-medium text-gray-500 text-sm sm:text-xs">
                     {["Home", "Messages", "Tasks", "Members", "Settings"][i]}
                   </span>
                 </div>
@@ -309,7 +294,7 @@ export default function Layout() {
                       className="w-2 h-2 rounded-full inline-block"
                       style={{ backgroundColor: item.color }}
                     ></span>
-                    <span className="font-medium text-gray-500 group-hover:text-black">
+                    <span className="font-medium text-gray-500 group-hover:text-black text-sm sm:text-xs">
                       {item.text}
                     </span>
                   </div>
@@ -345,39 +330,40 @@ export default function Layout() {
         )}
       </div>
 
+      {/* Mobile toggle button */}
       {!isSidebarOpen && (
         <button
-          className="absolute top-2 left-0 -ml-6 p-2 bg-blue-500 text-white rounded-r"
+          className="hidden md:block absolute top-3 left-3 p-2 bg-blue-500 text-white rounded z-30"
           onClick={() => setIsSidebarOpen(true)}
         >
-          &rarr;
+          ☰
         </button>
       )}
 
-      {/* ---------- Main Right Content ---------- */}
-      <div className="flex-1 bg-white p-6 overflow-auto">
-        <div className="flex items-center justify-between mb-6">
-          <div className="relative w-1/3">
+      {/* ---------- Main Content ---------- */}
+      <div className="flex-1 bg-white p-4 sm:p-6 overflow-auto md:ml-0">
+        {/* Search + Profile */}
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 gap-4">
+          <div className="relative w-full md:w-1/3">
             <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
               <img src={searchIcon} alt="Search" className="w-4 h-4" />
             </span>
             <input
               type="text"
               placeholder="Search for anything..."
-              className="border rounded p-2 pl-10 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="border rounded p-2 pl-10 w-full focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm"
             />
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 flex-wrap md:flex-nowrap">
             <img
               src={righticons}
               alt="Right Icons"
-              className="w-20 h-4 mr-20"
+              className="w-20 h-4 mr-0 md:mr-20"
             />
-
             <div className="flex items-center gap-3">
               <div className="flex flex-col text-right">
-                <p className="font-medium">Palak Jain</p>
+                <p className="font-medium text-sm">Palak Jain</p>
                 <p className="text-xs text-gray-500">Rajasthan, India</p>
               </div>
               <div className="flex items-center gap-1">
@@ -393,21 +379,25 @@ export default function Layout() {
         </div>
 
         {/* Heading row */}
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3">
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold">Mobile App</h1>
+            <h1 className="text-xl sm:text-2xl font-bold">Mobile App</h1>
             <img
               src={headingIcons}
               alt="Heading Icons"
               className="w-14 h-5 mt-1"
             />
           </div>
-          <img src={profiles} alt="Profiles" className="w-30 h-8 rounded" />
+          <img
+            src={profiles}
+            alt="Profiles"
+            className="w-30 h-8 rounded object-cover"
+          />
         </div>
 
-        {/* Filters / Actions row */}
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex gap-3 items-center">
+        {/* Filters / Actions */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3 flex-wrap">
+          <div className="flex gap-3 items-center flex-wrap">
             <button className="flex items-center gap-2 bg-white border border-gray-300 px-4 py-2 rounded hover:bg-gray-50 min-w-[100px]">
               <img src={filterIcon} alt="Filter" className="w-4 h-4" />
               <span className="text-sm font-medium">Filter</span>
@@ -420,11 +410,10 @@ export default function Layout() {
               <img src={arrowDown} alt="Arrow Down" className="w-4 h-4" />
             </button>
 
-            {/* Simple filter select (All / Low / High / Completed) */}
             <select
               value={filterPriority}
               onChange={(e) => setFilterPriority(e.target.value)}
-              className="ml-2 border rounded px-2 py-1 text-sm"
+              className="ml-0 sm:ml-2 border rounded px-2 py-1 text-sm"
             >
               <option value="All">All priorities</option>
               <option value="Low">Low</option>
@@ -433,7 +422,7 @@ export default function Layout() {
             </select>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 flex-wrap">
             <button className="flex items-center gap-2 bg-gray-100 px-3 py-2 rounded hover:bg-gray-200">
               <img src={shareIcon} alt="Share" className="w-4 h-4" />
               <span className="text-sm font-medium">Share</span>
@@ -443,16 +432,16 @@ export default function Layout() {
           </div>
         </div>
 
-        {/* ---------- Task Board with Drag & Drop ---------- */}
+        {/* ---------- Task Board ---------- */}
         <DragDropContext onDragEnd={onDragEnd}>
-          <div className="flex gap-4 mt-6">
+          <div className="flex flex-col md:flex-row gap-4 mt-6 overflow-x-auto pb-4">
             {columnMeta.map((col) => (
               <div
                 key={col.key}
-                className="flex-1 bg-[#f5f5f5] border rounded-lg p-4 flex flex-col gap-4"
+                className="flex-1 bg-[#f5f5f5] border rounded-lg p-4 flex flex-col gap-4 min-w-[280px] max-w-full"
               >
                 {/* Header */}
-                <div className="flex items-center gap-2 mb-2">
+                <div className="flex items-center gap-2 mb-2 flex-wrap">
                   <div className="flex items-center gap-2">
                     <span
                       className="w-2 h-2 rounded-full inline-block"
@@ -464,7 +453,6 @@ export default function Layout() {
                     {getFiltered(columns[col.key]).length}
                   </span>
 
-                  {/* Add Task button */}
                   <button
                     onClick={() => {
                       setAddFormFor(addFormFor === col.key ? null : col.key);
@@ -481,13 +469,11 @@ export default function Layout() {
                   </button>
                 </div>
 
-                {/* colored underline under heading */}
                 <div
                   className="h-1 rounded"
                   style={{ backgroundColor: col.color }}
                 />
 
-                {/* Add form (inline) */}
                 {addFormFor === col.key && (
                   <div className="bg-white p-3 rounded shadow-sm">
                     <input
@@ -496,135 +482,120 @@ export default function Layout() {
                         setNewTaskData((s) => ({ ...s, title: e.target.value }))
                       }
                       placeholder="Title"
-                      className="w-full border rounded px-2 py-1 mb-2"
+                      className="w-full border rounded px-2 py-1 mb-2 text-sm"
                     />
-                    <input
+                    <textarea
                       value={newTaskData.desc1}
                       onChange={(e) =>
                         setNewTaskData((s) => ({ ...s, desc1: e.target.value }))
                       }
-                      placeholder="Short description"
-                      className="w-full border rounded px-2 py-1 mb-2"
+                      placeholder="Description 1"
+                      className="w-full border rounded px-2 py-1 mb-2 text-sm"
                     />
-                    <input
+                    <textarea
                       value={newTaskData.desc2}
                       onChange={(e) =>
                         setNewTaskData((s) => ({ ...s, desc2: e.target.value }))
                       }
-                      placeholder="Additional notes"
-                      className="w-full border rounded px-2 py-1 mb-2"
+                      placeholder="Description 2"
+                      className="w-full border rounded px-2 py-1 mb-2 text-sm"
                     />
-                    <div className="flex items-center gap-2">
-                      <select
-                        value={newTaskData.priority}
-                        onChange={(e) =>
-                          setNewTaskData((s) => ({
-                            ...s,
-                            priority: e.target.value,
-                          }))
-                        }
-                        className="border px-2 py-1 rounded"
-                      >
-                        <option>Low</option>
-                        <option>High</option>
-                        <option>Completed</option>
-                      </select>
-                      <button
-                        onClick={() => handleAddTask(col.key)}
-                        className="ml-auto bg-blue-500 text-white px-3 py-1 rounded"
-                      >
-                        Add
-                      </button>
+                    <select
+                      value={newTaskData.priority}
+                      onChange={(e) =>
+                        setNewTaskData((s) => ({
+                          ...s,
+                          priority: e.target.value,
+                        }))
+                      }
+                      className="border rounded px-2 py-1 mb-2 text-sm w-full"
+                    >
+                      <option value="Low">Low</option>
+                      <option value="High">High</option>
+                      <option value="Completed">Completed</option>
+                    </select>
+                    <div className="flex justify-end gap-2">
                       <button
                         onClick={() => setAddFormFor(null)}
-                        className="bg-gray-200 px-3 py-1 rounded"
+                        className="px-3 py-1 text-sm bg-gray-200 rounded"
                       >
                         Cancel
+                      </button>
+                      <button
+                        onClick={() => handleAddTask(col.key)}
+                        className="px-3 py-1 text-sm bg-blue-500 text-white rounded"
+                      >
+                        Add
                       </button>
                     </div>
                   </div>
                 )}
 
-                {/* Droppable area for column */}
                 <Droppable droppableId={col.key}>
                   {(provided) => (
                     <div
                       ref={provided.innerRef}
                       {...provided.droppableProps}
-                      className="flex flex-col gap-3 min-h-[40px]"
+                      className="flex flex-col gap-3"
                     >
                       {getFiltered(columns[col.key]).map((task, index) => (
                         <Draggable
+                          key={task.id}
                           draggableId={task.id}
                           index={index}
-                          key={task.id}
                         >
-                          {(providedDraggable, snapshot) => (
+                          {(provided) => (
                             <div
-                              ref={providedDraggable.innerRef}
-                              {...providedDraggable.draggableProps}
-                              {...providedDraggable.dragHandleProps}
-                              className={`bg-white rounded-lg shadow-sm p-4 border-l-4 flex flex-col gap-2 ${
-                                snapshot.isDragging ? "opacity-90" : ""
-                              }`}
-                              style={{
-                                borderLeftColor: col.color,
-                                ...providedDraggable.draggableProps.style,
-                              }}
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                              className="bg-white rounded p-3 shadow-sm"
                             >
-                              {/* first line: status & dots */}
-                              <div className="flex justify-between items-center">
+                              <div className="flex items-center justify-between mb-2">
                                 <span className={statusClass(task.priority)}>
                                   {task.priority}
                                 </span>
                                 <img
-                                  src={dots3}
-                                  alt="dots"
-                                  className="w-4 h-1 cursor-pointer"
+                                  src={dotsIcon}
+                                  alt="Options"
+                                  className="w-4 h-1"
                                 />
                               </div>
-
-                              {/* heading */}
-                              <h4 className="font-semibold text-gray-800">
+                              <h4 className="font-semibold text-sm mb-1">
                                 {task.title}
                               </h4>
-
-                              {/* description lines */}
-                              {task.desc1 && (
-                                <p className="text-xs text-gray-500">
-                                  {task.desc1}
-                                </p>
-                              )}
+                              <p className="text-xs text-gray-500">
+                                {task.desc1}
+                              </p>
                               {task.desc2 && (
                                 <p className="text-xs text-gray-500">
                                   {task.desc2}
                                 </p>
                               )}
 
-                              {/* footer: profiles + comments + files */}
-                              <div className="flex items-center justify-between mt-2">
+                              <div className="flex justify-between items-center mt-3">
                                 <img
                                   src={itemProfiles}
                                   alt="Profiles"
-                                  className="w-16 h-6 rounded-full"
+                                  className="w-16 h-5"
                                 />
-                                <div className="flex items-center gap-4 text-xs text-gray-500">
-                                  <div className="flex items-center gap-1">
+                                <div className="flex items-center gap-4 text-xs text-gray-400">
+                                  <span className="flex items-center gap-1">
                                     <img
                                       src={commentsIcon}
                                       alt="Comments"
                                       className="w-3 h-3"
-                                    />
-                                    <span>{task.comments} comments</span>
-                                  </div>
-                                  <div className="flex items-center gap-1">
+                                    />{" "}
+                                    {task.comments} comments
+                                  </span>
+                                  <span className="flex items-center gap-1">
                                     <img
                                       src={filesIcon}
                                       alt="Files"
                                       className="w-3 h-3"
-                                    />
-                                    <span>{task.files} files</span>
-                                  </div>
+                                    />{" "}
+                                    {task.files} files
+                                  </span>
                                 </div>
                               </div>
                             </div>
